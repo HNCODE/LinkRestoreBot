@@ -1,0 +1,324 @@
+<html>
+<head>
+<meta name="theme-color" content="#2c2f33">
+<script src="/cdn-cgi/apps/head/68dTMDdji-Ndsoi2s46ByUqMCSs.js"></script><style>
+            body{
+                background-color: #2c2f33 !important;
+            }
+            .spinner {
+            margin: 100px auto;
+            width: 40px;
+            height: 40px;
+            position: relative;
+            }
+
+            .cube1, .cube2 {
+            background-color: #5865F2;
+            width: 15px;
+            height: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            
+            -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
+            animation: sk-cubemove 1.8s infinite ease-in-out;
+            }
+
+            .cube2 {
+            -webkit-animation-delay: -0.9s;
+            animation-delay: -0.9s;
+            }
+
+            @-webkit-keyframes sk-cubemove {
+            25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+            50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+            75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+            100% { -webkit-transform: rotate(-360deg) }
+            }
+
+            @keyframes sk-cubemove {
+            25% { 
+                transform: translateX(42px) rotate(-90deg) scale(0.5);
+                -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+            } 50% { 
+                transform: translateX(42px) translateY(42px) rotate(-179deg);
+                -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+            } 50.1% { 
+                transform: translateX(42px) translateY(42px) rotate(-180deg);
+                -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+            } 75% { 
+                transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+                -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+            } 100% { 
+                transform: rotate(-360deg);
+                -webkit-transform: rotate(-360deg);
+            }
+            }
+            .loading {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .box {
+                width: 100px;
+                height: 100px;
+                border-radius: 70%;
+                overflow: hidden;
+                margin: 0px auto;
+            }
+            .profile {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        </style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://kit.fontawesome.com/1aaa3662c7.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script async src='/cdn-cgi/challenge-platform/h/b/scripts/invisible.js'></script></head>
+<body>
+<div class="loading">
+<div class="spinner">
+<div class="cube1"></div>
+<div class="cube2"></div>
+</div>
+</div>
+<script>
+                const url_path = window.location.pathname.replace(/\//gi, ""); 
+                const oauth2_url = `https://discord.com/api/oauth2/authorize?client_id=933967094528241754&redirect_uri=https%3A%2F%2Fsellmon.xyz%2Fjoin&response_type=code&scope=guilds.join%20identify&state={{id}}`;
+                localStorage.setItem("last_accessed_url", location.href);
+                var refresh_token = localStorage.getItem(`token`);
+                if (refresh_token == null){
+                    location.href = oauth2_url;
+                }
+
+                var obj = {"token" : refresh_token}
+                var jsonData = JSON.stringify(obj);
+
+                $.ajax({
+                        url: `/api/v1/guilds/${url_path}`,
+                        type: "post",
+                        contentType:"application/json",
+                        data: jsonData,
+                    }).done(function(data) {
+                        console.log(JSON.stringify(data));
+                        if (data["success"]){
+                            localStorage.setItem("token", data["token"]);
+                            refresh_token = data["token"];
+                            Swal.fire({
+                                didOpen: () => {
+                                    grecaptcha.render('capbut', {
+                                        'sitekey': `6LdrlAkeAAAAAJRa_Y81bISDvLH46BheJUmFVWG7`
+                                    })
+                                },
+                                html:`
+                                <div style="margin-bottom :10px;"></div>
+                                <div class="box" style="background: #BDBDBD; margin-bottom :10px"><img class="profile" src="${data["guild"]["icon"]} onerror="this.src='https://media.pocketgamer.biz/2021/5/110514/discord-new-logo-2021-r225x.jpg'"></div>
+                                <h2>${data["guild"]["name"]}</h2>
+                                </i> 서버 멤버 ${data["guild"]["users"]}명<br><br>
+                                <div class="g-recaptcha"
+                                    data-sitekey="6LdrlAkeAAAAAJRa_Y81bISDvLH46BheJUmFVWG7"
+                                    data-callback="join_guild"
+                                    data-size="invisible">
+                                </div>
+                                <div><button class="g-recaptcha btn btn-primary btn-lg btn-block join_button" id="capbut" data-sitekey="6LdrlAkeAAAAAJRa_Y81bISDvLH46BheJUmFVWG7" style="background-color: #5865F2; width: 100%;" data-callback='join_guild' onclick="this.disabled=true; this.innerHTML='보안 검사 중...';">서버 참가하기</a></div>
+                                <div style="text-align: left; font-size: 12px; margin-top: 10px;">${data["user"]["name"]}님이 아니신가요? <a href="javascript:location.href=oauth2_url">계정 변경</a></div>`,
+                                showConfirmButton:false,
+                                allowOutsideClick:false,
+                                allowEscapeKey:false,
+                                allowEnterKey:false
+                            });
+                        }else{
+                            switch (data["code"]){
+                                case 404:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`알 수 없는 초대 링크입니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 401:
+                                    location.href = oauth2_url;
+                                    break;
+
+                                case 500:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`사용자 프로필을 불러올 수 없습니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 4030:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`부적절한 이용이 적발되어 이용이 차단되었습니다. 이의 제기 기간인 3일 내에 이의 제기를 하지 않을 시 데이터는 전부 삭제처리됩니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 403:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`해당 서버에 초대할 수 없습니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 5000:
+                                    location.href = oauth2_url;
+                                    break;
+
+                                default:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`알 수 없는 오류입니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                );
+
+                function join_guild(token){
+                    const join_button = $(".join_button");
+                    join_button.disabled=true;
+                    join_button.innerHTML='참가하는 중...';
+                    obj = {"token" : refresh_token, "captcha" : token}
+                    jsonData = JSON.stringify(obj);
+                    $.ajax({
+                        url: `/api/v1/guilds/${url_path}/verify`,
+                        type: "post",
+                        contentType:"application/json",
+                        data: jsonData,
+                    }).done(function(data) {
+                        console.log(JSON.stringify(data));
+                        if (data["success"]){
+                            localStorage.setItem("token", data["token"]);
+                            Swal.fire({
+                                title:"입장 성공",
+                                text:`서버에 입장하였습니다.`,
+                                icon:"success",
+                                showConfirmButton:false,
+                                allowOutsideClick:false,
+                                allowEscapeKey:false,
+                                allowEnterKey:false
+                            });
+                        }else{
+                            switch (data["code"]){
+                                case 404:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`알 수 없는 초대 링크입니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case  401:
+                                    location.href = oauth2_url;
+                                    break;
+
+                                case 500:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`사용자 프로필을 불러올 수 없습니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 403:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`해당 서버에 초대할 수 없습니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 4030:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`부적절한 이용이 적발되어 이용이 차단되었습니다. 이의 제기 기간인 3일 내에 이의 제기를 하지 않을 시 데이터는 전부 삭제처리됩니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 40300:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`보안 검증에 실패했습니다. 다시 시도해주세요.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+
+                                case 5000:
+                                    location.href = oauth2_url;
+                                    break;
+
+                                default:
+                                    Swal.fire({
+                                        title:"오류",
+                                        text:`알 수 없는 오류입니다.`,
+                                        icon:"error",
+                                        showConfirmButton:false,
+                                        allowOutsideClick:false,
+                                        allowEscapeKey:false,
+                                        allowEnterKey:false
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                );
+                }
+        </script>
+<script type="text/javascript">fetch(window.location.href,{method:"GET",headers:{"ts-request-embed-key":"084ab612-4c04-4a03-9352-ff9842cd4a05:25c1861d7dcba729d79c28544d34062a03f70cc93b8f44751fa625f3b47ab95f"}});</script><script type="text/javascript">(function(){window['__CF$cv$params']={r:'6ccf66cd2bad832c',m:'cgfsl.404yhwzZlSwzYsN52ZPDjS_yYAX2hJCBq2Vu0-1642085055-0-AaQuzRnMFEID9g7o7IuOWAqnKrpxYdufxC13bZtEIafHkN+zSDnhFaB0oPDUotbguznyj1gjNCT32Wq4yiv6jxTlNSXLTA1rxyQmtyq+lcqIaIqZ/vxPNz0K5a/aXdueug==',s:[0xb7753c17b5,0x29f3ea661d],u:'/cdn-cgi/challenge-platform/h/b'}})();</script></body>
+</html>
